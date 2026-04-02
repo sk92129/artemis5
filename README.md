@@ -3,9 +3,13 @@
 
 # Build
 
-mvn clean install
+mvn clean package
 
 # Run
 
 mvn javafx:run
+
+# Run Fat JAR (all dependencies included)
+
+java -cp target/artemis.jar com.example.Main
 
