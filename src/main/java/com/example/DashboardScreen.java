@@ -10,15 +10,19 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class DashboardScreen extends Application {
+    private static final double CARD_MIN_WIDTH = 300;
     private double zoomFactor = 1.0;
 
     @Override
@@ -77,19 +81,9 @@ public class DashboardScreen extends Application {
         columns.setPadding(new Insets(16));
         columns.setAlignment(Pos.TOP_CENTER);
 
-        VBox missionOverviewCard = createCard(
-            "Mission Overview",
-            "NASA's Artemis program returns humans to the Moon, establishes long-term "
-                + "lunar presence, and prepares for future missions to Mars. Artemis I "
-                + "validated deep-space systems with an uncrewed Orion flight."
-        );
+        VBox missionOverviewCard = createMissionOverviewCard();
 
-        VBox hardwareCard = createCard(
-            "Spacecraft & Launch",
-            "The Space Launch System (SLS) provides heavy-lift capability, while Orion "
-                + "supports crew transport and deep-space operations. The Gateway and "
-                + "Human Landing System extend mission flexibility in lunar orbit."
-        );
+        Artemis2MotionCard artemis2MotionCard = new Artemis2MotionCard();
 
         VBox goalsCard = createCard(
             "Science & Future Goals",
@@ -98,15 +92,42 @@ public class DashboardScreen extends Application {
                 + "Lessons learned directly support eventual crewed Mars expeditions."
         );
 
-        HBox.setHgrow(missionOverviewCard, Priority.ALWAYS);
-        HBox.setHgrow(hardwareCard, Priority.ALWAYS);
-        HBox.setHgrow(goalsCard, Priority.ALWAYS);
-        missionOverviewCard.setMaxWidth(Double.MAX_VALUE);
-        hardwareCard.setMaxWidth(Double.MAX_VALUE);
-        goalsCard.setMaxWidth(Double.MAX_VALUE);
+        configureResizableCard(missionOverviewCard);
+        configureResizableCard(artemis2MotionCard);
+        configureResizableCard(goalsCard);
 
-        columns.getChildren().addAll(missionOverviewCard, hardwareCard, goalsCard);
+        columns.getChildren().addAll(missionOverviewCard, artemis2MotionCard, goalsCard);
         return columns;
+    }
+
+    private VBox createMissionOverviewCard() {
+        VBox card = createCard(
+            "Mission Overview",
+            "NASA's Artemis program returns humans to the Moon, establishes long-term "
+                + "lunar presence, and prepares for future missions to Mars. Artemis I "
+                + "validated deep-space systems with an uncrewed Orion flight."
+        );
+
+        var imageUrl = getClass().getResource("/0525-cw-news-nasa-orion-breakdown.png");
+        if (imageUrl != null) {
+            Image missionImage = new Image(imageUrl.toExternalForm());
+            ImageView missionImageView = new ImageView(missionImage);
+            missionImageView.setPreserveRatio(true);
+            missionImageView.setFitWidth(360);
+            missionImageView.setSmooth(true);
+            card.getChildren().add(1, missionImageView);
+        } else {
+            Label imageMissing = new Label("Mission image could not be loaded.");
+            imageMissing.setFont(Font.font(13));
+            card.getChildren().add(1, imageMissing);
+        }
+        return card;
+    }
+
+    private void configureResizableCard(Region card) {
+        HBox.setHgrow(card, Priority.ALWAYS);
+        card.setMinWidth(CARD_MIN_WIDTH);
+        card.setMaxWidth(Double.MAX_VALUE);
     }
 
     private VBox createCard(String title, String bodyText) {
